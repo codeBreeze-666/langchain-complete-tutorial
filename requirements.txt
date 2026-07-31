@@ -1,0 +1,36 @@
+# LangChain 核心库（使用灵活版本号避免冲突）
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+langchain-community>=0.3.0
+langchain-ollama>=0.2.0
+
+# LangGraph - 构建有状态的多角色应用
+langgraph>=0.2.0
+langgraph-checkpoint>=1.0.0
+
+# LangServe - 部署 LangChain 应用为 REST API
+langserve>=0.3.0
+fastapi>=0.115.0
+uvicorn>=0.30.0
+sse-starlette>=2.0.0
+
+# LangSmith - LLM 应用的可观测性与评估
+langsmith>=0.1.0
+
+# 模型提供商相关
+openai>=1.0.0
+tiktoken>=0.5.0
+
+# 向量数据库和检索
+chromadb>=0.5.0
+faiss-cpu>=1.8.0
+
+# 文档处理
+pypdf>=4.0.0
+python-docx>=1.1.0
+
+# 其他依赖
+python-dotenv>=1.0.0
+pydantic>=2.8.0
+requests>=2.31.0
