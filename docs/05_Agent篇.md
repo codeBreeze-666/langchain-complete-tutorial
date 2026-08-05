@@ -2,7 +2,9 @@
 
 ## 5.1 Agent基础（agent_basics.py）
 
-### 知识点：create_tool_calling_agent、AgentExecutor、带记忆Agent、Agent调试
+### 知识点：create_agent、带记忆Agent、Agent调试
+
+> **历史演进**：旧版使用 `create_tool_calling_agent` + `AgentExecutor`（已废弃），现代方式使用 LangChain v1 的 `create_agent`。
 
 **运行方式：**
 
@@ -14,8 +16,8 @@ python src/chains/agent_basics.py
 
 - **Agent**：能够自主选择工具、规划步骤的智能体
 - **Tool Calling**：Agent 通过调用工具完成实际任务
-- **AgentExecutor**：Agent 的执行引擎，负责调度工具和推理循环
-- **agent_scratchpad**：Agent 的"草稿本"，记录思考过程和工具调用历史
+- **create_agent**：LangChain v1 的 Agent 创建函数（底层运行在 LangGraph 上）
+- **system_prompt**：Agent 的系统提示词，定义 Agent 的行为风格
 
 **原创工具集：**
 
@@ -36,33 +38,24 @@ python src/chains/agent_basics.py
 **关键代码：**
 
 ```python
-from langchain.agents import create_tool_calling_agent, AgentExecutor
-from langchain_core.prompts import ChatPromptTemplate
+from langchain.agents import create_agent
 
 # 定义工具
 tools = [get_word_meaning, get_synonym, get_abbreviation]
 
-# 创建提示词模板（必须包含 agent_scratchpad 占位符）
-prompt = ChatPromptTemplate.from_messages([
-    ("system", "你是一个语言助手..."),
-    ("human", "{input}"),
-    ("placeholder", "{agent_scratchpad}"),  # Agent 思考过程的占位符
-])
-
-# 创建 Agent 和执行器
-agent = create_tool_calling_agent(model, tools, prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+# 创建 Agent
+agent = create_agent(model, tools, system_prompt="你是一个语言助手...")
 
 # 调用
-result = agent_executor.invoke({"input": "什么是人工智能？"})
+result = agent.invoke({"messages": [("user", "什么是人工智能？")]})
 ```
 
 **实战要点：**
 
 1. Agent 通过工具的 **docstring** 理解工具用途，决定何时调用
-2. 提示词模板必须包含 `{agent_scratchpad}` 占位符，否则 Agent 无法记录思考过程
-3. `verbose=True` 可打印 Agent 的完整推理过程，便于调试
-4. Agent 会将工具返回的结果整合为自然语言回答
+2. `system_prompt` 参数定义 Agent 的行为风格，替代旧版的提示词模板
+3. Agent 会将工具返回的结果整合为自然语言回答
+4. 调用时使用 `{"messages": [...]}` 格式传入消息
 
 ---
 
@@ -73,22 +66,17 @@ result = agent_executor.invoke({"input": "什么是人工智能？"})
 **关键代码：**
 
 ```python
-prompt = ChatPromptTemplate.from_messages([
-    ("system", "你是一个语言助手...你可以记住之前的对话内容，理解用户的追问。"),
-    ("placeholder", "{chat_history}"),  # 对话历史占位符
-    ("human", "{input}"),
-    ("placeholder", "{agent_scratchpad}"),
-])
+# 创建带记忆的 Agent
+agent = create_agent(model, tools, system_prompt="你是一个语言助手...你可以记住之前的对话内容，理解用户的追问。")
 
-# 调用时传入 chat_history
-result = agent_executor.invoke({
-    "input": "它有哪些同义词？",
-    "chat_history": chat_history,
+# 调用时传入消息历史
+result = agent.invoke({
+    "messages": chat_history + [("user", user_input)],
 })
 
 # 调用后更新记忆
 chat_history.append(HumanMessage(content=user_input))
-chat_history.append(AIMessage(content=result["output"]))
+chat_history.append(AIMessage(content=final_answer))
 ```
 
 **实战要点：**
@@ -116,17 +104,11 @@ chat_history.append(AIMessage(content=result["output"]))
 ```python
 # 词典模式
 dict_tools = [get_word_meaning]
-dict_prompt = ChatPromptTemplate.from_messages([
-    ("system", "你是一个专业词典助手..."),
-    ...
-])
+dict_agent = create_agent(model, dict_tools, system_prompt="你是一个专业词典助手...")
 
 # 全功能模式
 full_tools = [get_word_meaning, get_synonym, get_abbreviation]
-full_prompt = ChatPromptTemplate.from_messages([
-    ("system", "你是一个全方位语言助手...尽可能综合利用多种工具..."),
-    ...
-])
+full_agent = create_agent(model, full_tools, system_prompt="你是一个全方位语言助手...尽可能综合利用多种工具...")
 ```
 
 **实战要点：**
@@ -140,34 +122,31 @@ full_prompt = ChatPromptTemplate.from_messages([
 
 ### 示例4：Agent调试 — 观察思考过程
 
-**功能说明：** 通过 `return_intermediate_steps=True` 获取 Agent 的完整执行轨迹。
+**功能说明：** 通过分析 Agent 返回的 messages 获取完整执行轨迹。
 
 **关键代码：**
 
 ```python
-# 关闭 verbose，开启中间步骤记录
-agent_executor = AgentExecutor(
-    agent=agent, tools=tools,
-    verbose=False,
-    return_intermediate_steps=True
-)
+# 创建 Agent
+agent = create_agent(model, tools, system_prompt="你是一个语言助手...")
 
-result = agent_executor.invoke({"input": user_input})
+result = agent.invoke({"messages": [("user", user_input)]})
 
-# 解析中间步骤
-steps = result.get("intermediate_steps", [])
-for i, (action, observation) in enumerate(steps, 1):
-    print(f"工具名称：{action.tool}")
-    print(f"调用参数：{action.tool_input}")
-    print(f"工具返回：{observation}")
+# 解析 Agent 的思考过程
+messages = result.get("messages", [])
+for msg in messages:
+    if hasattr(msg, 'tool_calls') and msg.tool_calls:
+        for tc in msg.tool_calls:
+            print(f"工具名称：{tc['name']}")
+            print(f"调用参数：{tc['args']}")
 ```
 
 **实战要点：**
 
-1. `return_intermediate_steps=True` 是调试 Agent 的关键开关
-2. `intermediate_steps` 包含 `(Action, Observation)` 元组列表
+1. `result["messages"]` 包含完整的对话和工具调用历史
+2. 通过检查 `msg.tool_calls` 可以看到每一步的工具调用详情
 3. 通过调试可以诊断：Agent 选错工具、参数错误、多步推理逻辑等问题
-4. 如果 `steps` 为空，说明 Agent 未调用任何工具，直接回答
+4. 如果没有 tool_calls，说明 Agent 未调用任何工具，直接回答
 
 ---
 
@@ -584,7 +563,7 @@ python src/chains/human_in_loop.py
 
 本章深入探讨了 LangChain 中 Agent 的四大核心主题：
 
-1. **Agent基础**：掌握了 `create_tool_calling_agent` 和 `AgentExecutor` 的使用，理解了工具定义（docstring 是 Agent 决策的关键）、对话记忆（chat_history）、自定义工具组合和调试技巧（intermediate_steps）。
+1. **Agent基础**：掌握了 `create_agent` 的使用，理解了工具定义（docstring 是 Agent 决策的关键）、对话记忆（chat_history）、自定义工具组合和调试技巧（messages 分析）。
 
 2. **Agent工作流**：学习了四种工作流编排模式——顺序（管道串联）、条件（RunnableBranch 路由）、循环（Python 循环 + 反馈注入）、并行（RunnableParallel 多维度同时执行）。
 

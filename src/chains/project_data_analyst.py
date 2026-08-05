@@ -47,7 +47,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, AIMessage
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 from src.utils.llm_loader import get_default_llm
 
@@ -864,7 +864,7 @@ def feature_trend_prediction(tracker: AnalysisTracker):
     model = get_default_llm()
     tools = [calculate_statistics, predict_trend, detect_anomalies]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一位专业的数据趋势分析师。根据用户提供的历史数据，利用可用工具进行统计分析和趋势预测。你需要：1）先计算基本统计量了解数据特征 2）进行趋势预测 3）检测异常值（如有必要）。最终给出完整的趋势分析结论和建议。")
+    agent = create_agent(model, tools, system_prompt="你是一位专业的数据趋势分析师。根据用户提供的历史数据，利用可用工具进行统计分析和趋势预测。你需要：1）先计算基本统计量了解数据特征 2）进行趋势预测 3）检测异常值（如有必要）。最终给出完整的趋势分析结论和建议。")
 
     print("\n【交互式趋势预测】")
     print("输入历史数据（逗号分隔），AI 自动统计分析并预测趋势")

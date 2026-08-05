@@ -45,15 +45,19 @@ class PromptTemplates:
         )
     
     # ==================== Agent 模板 ====================
-    
-    @staticmethod
-    def agent_prompt() -> ChatPromptTemplate:
-        """Agent 提示词模板"""
-        return ChatPromptTemplate.from_messages([
-            ("system", "你是一个有用的助手,可以使用工具来帮助用户。"),
-            ("human", "{input}"),
-            ("placeholder", "{agent_scratchpad}"),
-        ])
+
+    # 注意:传统 Agent 模板已废弃
+    # LangChain v1 使用 create_agent(model, tools, system_prompt="...")
+    # 不需要手动构建包含 agent_scratchpad 的提示词模板
+
+    # 传统模板示例(仅供参考,已废弃):
+    # def agent_prompt() -> ChatPromptTemplate:
+    #     """Agent 提示词模板(传统方式 - 已废弃)"""
+    #     return ChatPromptTemplate.from_messages([
+    #         ("system", "你是一个有用的助手,可以使用工具来帮助用户。"),
+    #         ("human", "{input}"),
+    #         ("placeholder", "{agent_scratchpad}"),  # ← 传统 API 需要
+    #     ])
     
     # ==================== RAG 模板 ====================
     

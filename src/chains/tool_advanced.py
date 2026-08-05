@@ -24,7 +24,7 @@ import re
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from langchain_core.tools import StructuredTool, tool
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field, field_validator
 from src.utils.llm_loader import get_default_llm
@@ -380,8 +380,8 @@ def demo_tool_chain():
     # 定义工具
     tools = [get_weather, get_activity_recommendation]
 
-    # 创建提示词
-    agent = create_react_agent(model, tools, state_modifier="你是一个智能助手，可以使用工具帮助用户规划活动。")
+    # 创建 Agent (使用新的 create_agent API)
+    agent = create_agent(model, tools, system_prompt="你是一个智能助手，可以使用工具帮助用户规划活动。")
 
     print("\n【交互式活动规划】")
     print("提示：输入城市，Agent 会查询天气并推荐活动")

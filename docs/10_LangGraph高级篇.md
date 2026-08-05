@@ -20,7 +20,7 @@ python src/chains/langgraph_agent.py
 
 | 概念 | 说明 |
 |------|------|
-| **create_react_agent** | LangGraph 内置函数，一行代码创建 ReAct Agent |
+| **create_agent** | LangChain v1 内置函数，一行代码创建 ReAct Agent（底层运行在 LangGraph 上） |
 | **ToolNode** | 专门的图节点，自动处理 LLM 的工具调用请求 |
 | **should_continue** | 路由函数，决定 Agent 是继续调用工具还是结束循环 |
 | **工具调用循环** | Agent推理 → 调用工具 → 获取结果 → 继续推理 → 直到完成 |
@@ -41,13 +41,13 @@ python src/chains/langgraph_agent.py
 **核心代码**：
 
 ```python
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 
 llm = get_default_llm()
 tools = [search_knowledge]
 
 # 一行代码创建 ReAct Agent
-agent = create_react_agent(llm, tools)
+agent = create_agent(llm, tools)
 
 # 调用 Agent
 result = agent.invoke({"messages": [HumanMessage(content=user_input)]})
@@ -55,7 +55,7 @@ result = agent.invoke({"messages": [HumanMessage(content=user_input)]})
 
 **学习要点**：
 
-- `create_react_agent(llm, tools)` 一行创建 ReAct Agent
+- `create_agent(llm, tools)` 一行创建 ReAct Agent
 - 内部自动构建：Agent节点 → ToolNode → 路由判断 → 循环或结束
 - LLM 根据工具的 docstring 自动决定何时调用哪个工具
 - ReAct 循环：Reason(推理) → Act(调用工具) → Observe(观察结果) → 继续推理或结束
@@ -93,7 +93,7 @@ workflow.add_edge("tools", "agent")
 
 - `ToolNode(tools)` 自动处理 LLM 的工具调用请求
 - `should_continue` 路由函数通过检查 `tool_calls` 决定流程走向
-- 手动构建揭示了 `create_react_agent` 的内部原理
+- 手动构建揭示了 `create_agent` 的内部原理
 - 工具调用循环：Agent → tools → Agent → ... → END
 
 ### 示例3：循环推理 Agent — 代码调试
@@ -392,13 +392,13 @@ langgraph_multi_agent.py（示例1→2→3→4）
 
 | 阶段 | 必须掌握 | 进阶理解 |
 |------|---------|---------|
-| Agent | create_react_agent、ToolNode、should_continue | 循环推理、自我纠错 |
+| Agent | create_agent、ToolNode、should_continue | 循环推理、自我纠错 |
 | 人工介入 | interrupt()、Command(resume) | 断点恢复、多步审批 |
 | 多Agent | 角色委派、流水线 | 辩论模式、主管模式 |
 
 ### 实战建议
 
-1. **从 create_react_agent 开始**：先用快捷函数创建 Agent，理解 ReAct 循环后再手动构建
+1. **从 create_agent 开始**：先用快捷函数创建 Agent，理解 ReAct 循环后再手动构建
 2. **理解 interrupt 机制**：Human-in-the-Loop 是生产环境的关键能力，确保敏感操作有人审批
 3. **多 Agent 不是越多越好**：根据任务复杂度选择协作模式，简单任务用单 Agent 即可
 4. **设置迭代上限**：所有循环都必须有退出条件，防止无限循环

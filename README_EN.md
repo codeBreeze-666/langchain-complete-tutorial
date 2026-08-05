@@ -154,7 +154,7 @@ langchain/
 - `tool_injection.py` — InjectedState, InjectedStore, context-aware tools
 
 ### Chapter 5: Agents
-- `agent_basics.py` — create_tool_calling_agent, AgentExecutor, agent with memory
+- `agent_basics.py` — create_agent, agent with memory
 - `agent_workflow.py` — Sequential/conditional/loop/parallel workflows
 - `multi_agent.py` — Role delegation, pipeline agents, debate agents, supervisor
 - `human_in_loop.py` — Approval flows, content moderation, collaborative editing

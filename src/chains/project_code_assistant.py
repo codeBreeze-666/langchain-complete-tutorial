@@ -48,7 +48,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, AIMessage
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 from src.utils.llm_loader import get_default_llm
 
@@ -791,7 +791,7 @@ def feature_bug_debugging(tracker: CodeSessionTracker):
     model = get_default_llm()
     tools = [analyze_error, check_syntax, search_code_pattern]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一位经验丰富的调试专家。根据用户提供的代码和错误信息，利用可用工具分析问题并给出修复方案。你需要：1）分析错误信息识别错误类型 2）检查代码语法 3）搜索相关代码模式。最终给出完整的Bug分析报告和修复代码。")
+    agent = create_agent(model, tools, system_prompt="你是一位经验丰富的调试专家。根据用户提供的代码和错误信息，利用可用工具分析问题并给出修复方案。你需要：1）分析错误信息识别错误类型 2）检查代码语法 3）搜索相关代码模式。最终给出完整的Bug分析报告和修复代码。")
 
     print("\n【交互式Bug调试】")
     print("输入代码和报错信息，AI 分析原因并给出修复方案")

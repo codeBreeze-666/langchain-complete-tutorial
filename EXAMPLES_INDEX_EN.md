@@ -47,7 +47,7 @@
 ### Chapter 5: Agents
 | # | File | Key Topics | Examples | Difficulty |
 |---|------|-----------|----------|-----------|
-| 5.1 | `agent_basics.py` | create_tool_calling_agent, AgentExecutor, agent with memory, agent debugging | 4 | ⭐⭐⭐ |
+| 5.1 | `agent_basics.py` | create_agent, agent with memory, agent debugging | 4 | ⭐⭐⭐ |
 | 5.2 | `agent_workflow.py` | Sequential workflow, conditional workflow (RunnableBranch), loop workflow, parallel workflow | 4 | ⭐⭐⭐ |
 | 5.3 | `multi_agent.py` | Role delegation, pipeline agents, debate agents, supervisor agent | 4 | ⭐⭐⭐⭐ |
 | 5.4 | `human_in_loop.py` | Approval flow, content moderation, decision checkpoint, collaborative editing | 4 | ⭐⭐⭐ |

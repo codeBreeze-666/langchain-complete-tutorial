@@ -1,12 +1,12 @@
-# LangChain 核心库（使用灵活版本号避免冲突）
-langchain>=0.3.0
+# LangChain 核心库
+langchain>=1.0.0
 langchain-core>=0.3.0
 langchain-openai>=0.2.0
 langchain-community>=0.3.0
 langchain-ollama>=0.2.0
 
 # LangGraph - 构建有状态的多角色应用
-langgraph>=0.2.0
+langgraph>=1.0.0
 langgraph-checkpoint>=1.0.0
 
 # LangServe - 部署 LangChain 应用为 REST API

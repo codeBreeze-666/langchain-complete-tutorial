@@ -6,10 +6,14 @@ LangGraph Agent 高级案例 - 实战交互式示例
 每种模式都使用 LangGraph 的核心原语（StateGraph、ToolNode、路由函数等）
 
 核心概念：
-- create_react_agent: LangGraph 提供的快捷函数，一行代码创建 ReAct Agent
+- create_agent: LangChain v1 提供的快捷函数，一行代码创建 ReAct Agent（底层运行在 LangGraph 上）
 - ToolNode: 专门的图节点，自动处理 LLM 的工具调用请求并返回结果
 - should_continue: 路由函数（条件边），决定 Agent 是继续调用工具还是结束循环
 - 工具调用循环: Agent推理 → 调用工具 → 获取结果 → 继续推理 → 直到完成
+
+历史演进：
+- 旧版(已弃用): create_react_agent (from langgraph.prebuilt)
+- 新版(推荐): create_agent (from langchain.agents)
 
 应用场景：
 - 知识问答：Agent 自动选择知识库工具回答问题
@@ -29,7 +33,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langgraph.graph import StateGraph, MessagesState, START, END
-from langgraph.prebuilt import ToolNode, create_react_agent
+from langchain.agents import create_agent
+from langgraph.prebuilt import ToolNode
 from src.utils.llm_loader import get_default_llm
 
 
@@ -246,7 +251,7 @@ def demo_react_agent():
     """ReAct Agent - 用户输入问题，Agent 自动推理和调用知识库工具
 
     核心概念：
-    - create_react_agent: LangGraph 内置函数，自动构建 ReAct 循环图
+    - create_agent: LangChain v1 内置函数，自动构建 ReAct 循环图
     - ReAct 循环: Reason(推理) → Act(调用工具) → Observe(观察结果) → 继续推理或结束
     - 工具选择由 LLM 自动决定，无需手动编写路由逻辑
     """
@@ -254,16 +259,16 @@ def demo_react_agent():
     print("示例1：ReAct Agent - 知识问答")
     print("=" * 60)
     print("\n💡 核心概念：")
-    print("   - create_react_agent: 一行代码创建 ReAct Agent")
+    print("   - create_agent: 一行代码创建 ReAct Agent")
     print("   - ReAct 循环: 推理→调用工具→观察结果→继续推理或结束")
     print("   - 工具选择由 LLM 自动决定，无需手动路由")
 
     llm = get_default_llm()
     tools = [search_knowledge]
 
-    # 使用 create_react_agent 快速创建 Agent
+    # 使用 create_agent 快速创建 Agent
     # 内部自动构建: Agent节点 → ToolNode → 路由判断 → 循环或结束
-    agent = create_react_agent(llm, tools)
+    agent = create_agent(llm, tools)
 
     print("\n【交互式知识问答】")
     print("可用工具：search_knowledge（搜索知识库）")
@@ -310,7 +315,7 @@ def demo_react_agent():
         print("\n" + "-" * 60)
 
     print("\n✅ 核心概念总结：")
-    print("   1. create_react_agent(llm, tools) 一行创建 ReAct Agent")
+    print("   1. create_agent(llm, tools) 一行创建 ReAct Agent")
     print("   2. Agent 内部自动构建 StateGraph + ToolNode + should_continue 路由")
     print("   3. LLM 根据工具的 docstring 自动决定何时调用哪个工具")
     print("   4. 整个 ReAct 循环（推理→调用→观察→继续）完全自动")
@@ -326,7 +331,7 @@ def demo_tool_calling_agent():
     核心概念：
     - ToolNode: 专门处理工具调用的图节点，自动执行 LLM 请求的工具
     - should_continue: 路由函数，检查 LLM 输出是否包含工具调用
-    - 手动构建 StateGraph，理解 create_react_agent 的内部原理
+    - 手动构建 StateGraph，理解 create_agent 的内部原理
     """
     print("\n" + "=" * 60)
     print("示例2：工具调用 Agent - 生活助手")
@@ -435,7 +440,7 @@ def demo_tool_calling_agent():
     print("\n✅ 核心概念总结：")
     print("   1. ToolNode(tools) 自动处理 LLM 的工具调用请求")
     print("   2. should_continue 路由函数通过检查 tool_calls 决定流程走向")
-    print("   3. StateGraph 手动构建揭示了 create_react_agent 的内部原理")
+    print("   3. StateGraph 手动构建揭示了 create_agent 的内部原理")
     print("   4. 工具调用循环：Agent → tools → Agent → ... → END")
 
 
@@ -778,7 +783,7 @@ def main():
     print("=" * 60)
     print("\n本示例演示 LangGraph 中四种 Agent 模式的构建方式")
     print("\n核心概念：")
-    print("  • create_react_agent: 快速创建 ReAct Agent")
+    print("  • create_agent: 快速创建 ReAct Agent")
     print("  • ToolNode: 工具节点，自动处理工具调用")
     print("  • should_continue: 路由函数，决定是否继续循环")
     print("  • 工具调用循环: Agent推理→调用工具→获取结果→继续推理")

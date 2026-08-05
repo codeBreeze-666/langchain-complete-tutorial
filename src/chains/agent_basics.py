@@ -2,12 +2,17 @@
 LangChain Agent 基础 - 实战交互式案例
 =====================================
 
-本示例演示 Agent 的核心概念和使用方式
+本示例演示 Agent 的核心概念和使用方式(使用现代 LangGraph 框架)
 
 核心概念：
 - Agent：能够自主选择工具、规划步骤的智能体
 - Tool Calling：Agent 通过调用工具完成实际任务
-- AgentExecutor：Agent 的执行引擎，负责调度工具和推理循环
+- LangGraph：新一代 Agent 框架(推荐)，使用 create_agent
+
+历史演进：
+- 传统方式(已废弃): create_tool_calling_agent + AgentExecutor
+- 旧版 LangGraph(已弃用): create_react_agent
+- 现代方式(推荐): LangChain v1 的 create_agent
 
 应用场景：
 - 智能问答：根据问题自动选择合适的信息源
@@ -22,7 +27,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from langchain_core.tools import tool
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage
 from src.utils.llm_loader import get_default_llm
@@ -158,7 +163,7 @@ def demo_basic_agent():
     model = get_default_llm()
     tools = [get_word_meaning, get_synonym, get_abbreviation]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一个语言助手，可以帮助用户查询词语含义、同义词和缩写。请根据用户的问题选择合适的工具来回答。")
+    agent = create_agent(model, tools, system_prompt="你是一个语言助手，可以帮助用户查询词语含义、同义词和缩写。请根据用户的问题选择合适的工具来回答。")
 
     print("\n【交互式问答】")
     print("可用工具：")
@@ -214,7 +219,7 @@ def demo_agent_with_memory():
     model = get_default_llm()
     tools = [get_word_meaning, get_synonym, get_abbreviation]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一个语言助手，可以帮助用户查询词语含义、同义词和缩写。你可以记住之前的对话内容，理解用户的追问。")
+    agent = create_agent(model, tools, system_prompt="你是一个语言助手，可以帮助用户查询词语含义、同义词和缩写。你可以记住之前的对话内容，理解用户的追问。")
 
     # 对话记忆列表
     chat_history = []
@@ -281,12 +286,12 @@ def demo_agent_with_custom_tools():
     # --- 工具集 A：词典模式 ---
     dict_tools = [get_word_meaning]
 
-    dict_agent = create_react_agent(model, dict_tools, state_modifier="你是一个专业词典助手。你的职责是精确解释词语的含义，回答要严谨、详尽。")
+    dict_agent = create_agent(model, dict_tools, system_prompt="你是一个专业词典助手。你的职责是精确解释词语的含义，回答要严谨、详尽。")
 
     # --- 工具集 B：全功能模式 ---
     full_tools = [get_word_meaning, get_synonym, get_abbreviation]
 
-    full_agent = create_react_agent(model, full_tools, state_modifier="你是一个全方位语言助手，可以查询含义、同义词和缩写。尽可能综合利用多种工具，给出丰富的回答。")
+    full_agent = create_agent(model, full_tools, system_prompt="你是一个全方位语言助手，可以查询含义、同义词和缩写。尽可能综合利用多种工具，给出丰富的回答。")
 
     print("\n【工具模式选择】")
     print("  1. 词典模式 - 仅使用「查询含义」工具，适合精确释义")
@@ -351,14 +356,14 @@ def demo_agent_debug():
     print("示例4：Agent 调试 - 观察思考过程")
     print("=" * 60)
     print("\n💡 实战要点：")
-    print("   - AgentExecutor 的返回值包含完整的执行轨迹")
-    print("   - intermediate_steps 记录了每一步的工具调用和返回值")
+    print("   - LangGraph 的 agent.invoke 返回值包含完整的执行轨迹")
+    print("   - messages 字段记录了每一步的对话和工具调用")
     print("   - 调试是优化 Agent 提示词和工具设计的关键手段")
 
     model = get_default_llm()
     tools = [get_word_meaning, get_synonym, get_abbreviation]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一个语言助手，可以帮助用户查询词语含义、同义词和缩写。")
+    agent = create_agent(model, tools, system_prompt="你是一个语言助手，可以帮助用户查询词语含义、同义词和缩写。")
 
     print("\n【调试模式】")
     print("提示：每次问答后会展示 Agent 的完整思考过程")
@@ -423,11 +428,14 @@ def main():
     print("\n" + "=" * 60)
     print("  LangChain Agent 基础 - 实战案例")
     print("=" * 60)
-    print("\n本示例演示 Agent 的核心概念和使用方式")
+    print("\n本示例演示 Agent 的核心概念和使用方式(使用 LangGraph)")
     print("\n核心概念：")
     print("  • Agent：自主选择工具、规划步骤的智能体")
     print("  • Tool Calling：通过调用工具完成实际任务")
-    print("  • AgentExecutor：调度工具和推理循环的执行引擎")
+    print("  • LangGraph：新一代 Agent 框架(推荐)")
+    print("\n历史演进：")
+    print("  • 传统方式(已废弃): create_tool_calling_agent + AgentExecutor")
+    print("  • 现代方式(推荐): LangChain v1 的 create_agent")
     print("\n应用场景：")
     print("  • 智能问答、多步推理、工具编排")
 

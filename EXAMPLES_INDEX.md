@@ -35,7 +35,7 @@
 ### [第五章：Agent篇](docs/05_Agent篇.md)
 | 序号 | 案例文件 | 知识点 | 示例数 | 难度 |
 |------|---------|--------|-------|------|
-| 5.1 | `agent_basics.py` | create_tool_calling_agent、AgentExecutor、带记忆Agent、Agent调试 | 4 | ⭐⭐⭐ |
+| 5.1 | `agent_basics.py` | create_agent、带记忆Agent、Agent调试 | 4 | ⭐⭐⭐ |
 | 5.2 | `agent_workflow.py` | 顺序工作流、条件工作流(RunnableBranch)、循环工作流、并行工作流 | 4 | ⭐⭐⭐ |
 | 5.3 | `multi_agent.py` | 角色委派、流水线Agent、辩论Agent、主管Agent | 4 | ⭐⭐⭐⭐ |
 | 5.4 | `human_in_loop.py` | 审批流程、内容审核、决策检查、协作编辑 | 4 | ⭐⭐⭐ |

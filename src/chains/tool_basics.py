@@ -25,7 +25,7 @@ import random
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from langchain_core.tools import tool
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 from langchain_core.prompts import ChatPromptTemplate
 from src.utils.llm_loader import get_default_llm
 
@@ -265,8 +265,8 @@ def demo_agent_with_tools():
         convert_temperature
     ]
 
-    # 创建提示词
-    agent = create_react_agent(model, tools, state_modifier="你是一个智能助手，可以使用工具帮助用户。")
+    # 创建提示词 (使用新的 create_agent API)
+    agent = create_agent(model, tools, system_prompt="你是一个智能助手，可以使用工具帮助用户。")
 
     print("\n【交互式 Agent】")
     print("提示：用自然语言提问，Agent 会自动选择工具")
@@ -326,7 +326,7 @@ def demo_multi_tool_collaboration():
         convert_temperature
     ]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一个智能助手，可以组合使用多个工具完成复杂任务。")
+    agent = create_agent(model, tools, system_prompt="你是一个智能助手，可以组合使用多个工具完成复杂任务。")
 
     print("\n【复杂任务演示】")
     print("提示：输入复杂任务，Agent 会组合使用工具")

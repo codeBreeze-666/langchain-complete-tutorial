@@ -45,7 +45,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 from pydantic import BaseModel, Field
 from src.utils.llm_loader import get_default_llm
 
@@ -713,7 +713,7 @@ def feature_learning_path(tracker: LearningTracker):
     model = get_default_llm()
     tools = [search_subject, estimate_study_time, get_learning_resources]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一个专业的学习规划师。根据用户的学习目标，综合利用可用工具为其制定个性化的学习路径。你需要：1）搜索相关科目信息 2）估算学习时间 3）推荐学习资源。最终给出一份完整的学习路径规划，包括学习阶段、时间安排和资源推荐。")
+    agent = create_agent(model, tools, system_prompt="你是一个专业的学习规划师。根据用户的学习目标，综合利用可用工具为其制定个性化的学习路径。你需要：1）搜索相关科目信息 2）估算学习时间 3）推荐学习资源。最终给出一份完整的学习路径规划，包括学习阶段、时间安排和资源推荐。")
 
     print("\n【交互式学习路径推荐】")
     print("输入你的学习目标，AI 自动搜索科目、估算时间、推荐资源")

@@ -25,7 +25,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from langchain_core.tools import tool
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage
@@ -123,7 +123,7 @@ TECH_KNOWLEDGE_BASE = [
 
     "Agent（智能体）是 LangChain 中的核心概念，指能够自主决策和调用工具的 LLM 应用。"
     "Agent 通过 ReAct（Reasoning + Acting）范式交替进行思考和行动。"
-    "AgentExecutor 负责调度 Agent 的推理循环和工具调用。",
+    "LangGraph 是新一代 Agent 框架，通过 create_agent 简化 Agent 构建。",
 
     "向量数据库是专门用于存储和检索向量嵌入的数据库系统。"
     "常见的向量数据库包括 Chroma、Pinecone、Milvus 和 Weaviate。"
@@ -207,7 +207,7 @@ def demo_simple_rag_agent():
 
     tools = [search_tech_knowledge]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一个技术知识助手。当用户的问题需要参考知识库时，使用搜索工具获取信息；当问题属于常识或你已有把握回答时，可以直接回答。如果使用了知识库信息，请在回答中说明参考来源。")
+    agent = create_agent(model, tools, system_prompt="你是一个技术知识助手。当用户的问题需要参考知识库时，使用搜索工具获取信息；当问题属于常识或你已有把握回答时，可以直接回答。如果使用了知识库信息，请在回答中说明参考来源。")
 
     # 显示知识库概览
     print(f"\n📚 技术知识库包含 {len(knowledge_base)} 条知识：")
@@ -313,7 +313,7 @@ def demo_multi_source_rag():
 
     tools = [search_tech_docs, search_business_policy, search_product_info]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一个全能知识助手，可以搜索技术文档、公司制度和产品信息三个知识源。请根据用户的问题，选择合适的知识源进行搜索。如果问题涉及多个领域，可以同时搜索多个知识源。回答时请标注信息来源（技术文档/公司制度/产品信息）。")
+    agent = create_agent(model, tools, system_prompt="你是一个全能知识助手，可以搜索技术文档、公司制度和产品信息三个知识源。请根据用户的问题，选择合适的知识源进行搜索。如果问题涉及多个领域，可以同时搜索多个知识源。回答时请标注信息来源（技术文档/公司制度/产品信息）。")
 
     # 显示知识源概览
     print(f"\n📚 可用知识源：")
@@ -390,7 +390,7 @@ def demo_conversational_rag():
 
     tools = [search_knowledge]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一个对话式知识助手，可以在对话中回答技术问题和公司制度问题。当需要具体信息时使用搜索工具。请注意理解用户追问中的指代，结合之前的对话上下文来回答。如果之前已经搜索过相关信息，且问题可以在已有信息中回答，可以不重复搜索。")
+    agent = create_agent(model, tools, system_prompt="你是一个对话式知识助手，可以在对话中回答技术问题和公司制度问题。当需要具体信息时使用搜索工具。请注意理解用户追问中的指代，结合之前的对话上下文来回答。如果之前已经搜索过相关信息，且问题可以在已有信息中回答，可以不重复搜索。")
 
     # 对话历史
     chat_history = []
@@ -535,7 +535,7 @@ def demo_rag_with_tools():
 
     tools = [search_product_and_policy, calculator, date_calculator]
 
-    agent = create_react_agent(model, tools, state_modifier="你是一个企业助手，可以查询产品信息和公司制度，还能进行数学计算和日期计算。当用户的问题涉及具体数据时，请先用搜索工具获取信息，再用计算工具处理数据。例如：查价格后算总价、查制度后算期限。请给出详细的分析过程。")
+    agent = create_agent(model, tools, system_prompt="你是一个企业助手，可以查询产品信息和公司制度，还能进行数学计算和日期计算。当用户的问题涉及具体数据时，请先用搜索工具获取信息，再用计算工具处理数据。例如：查价格后算总价、查制度后算期限。请给出详细的分析过程。")
 
     print(f"\n📚 知识库：产品信息({len(PRODUCT_KNOWLEDGE_BASE)}条) + 公司制度({len(BUSINESS_KNOWLEDGE_BASE)}条)")
     print("🔧 工具集：知识搜索 + 计算器 + 日期计算")
